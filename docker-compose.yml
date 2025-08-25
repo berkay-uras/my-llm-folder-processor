@@ -1,0 +1,44 @@
+services:
+  # Frontend Servisi (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+
+  # Backend Servisi (FastAPI)
+  backend:
+    build:
+      context: .                      # kök dizin (requirements.txt ve backend klasörü burada)
+      dockerfile: backend/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend        # backend kodlarını mount et
+      - chroma_data:/app/chroma_data
+    depends_on:
+      - mongodb
+    environment:
+      CHROMA_DB_PATH: "/app/chroma_data"
+      LLAMA_MODEL_FILENAME: "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+      MONGO_URI: mongodb://mongodb:27017/
+
+  # Veritabanı Servisi (MongoDB)
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  chroma_data:
+  mongo_data:

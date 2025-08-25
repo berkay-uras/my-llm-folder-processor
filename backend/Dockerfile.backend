@@ -1,0 +1,42 @@
+# Temel imaj olarak Python 3.10'u kullanmaya devam ediyoruz
+FROM python:3.10-bullseye
+
+# Çalışma dizinini /app olarak ayarlıyoruz
+WORKDIR /app
+
+# Sistem bağımlılıklarını tek bir katmanda yüklüyoruz.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
+    cmake \
+    git \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# requirements.txt dosyasını kopyalıyoruz
+COPY backend/requirements.txt .
+
+# pip ve requirements.txt'deki kütüphaneleri kuruyoruz.
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# llama-cpp-python paketini BLAS ve Metal desteği olmadan özel olarak yüklüyoruz.
+# Bu adım, requirements.txt'deki sürüm çakışmalarını önlemek için gereklidir.
+ENV CMAKE_ARGS="-DLLAMA_METAL=OFF"
+RUN pip install --no-cache-dir "llama-cpp-python[server]==0.2.85"
+
+# Proje dosyalarını kopyalamadan önce models klasörünü oluşturuyoruz.
+RUN mkdir -p /app/backend/models
+
+# Model dosyasını doğrudan imajın içine kopyalıyoruz.
+COPY ./backend/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf /app/backend/models/
+
+# Sadece backend klasörünün içeriğini kopyalıyoruz.
+COPY backend/ ./backend/
+
+# Uygulamanın çalışacağı portu belirtiyoruz
+EXPOSE 8000
+
+# Uygulamayı başlatıyoruz
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,15 @@
+# use a image based on Node.js 
+FROM node:18-alpine
+
+# set up workplace
+WORKDIR /app
+
+# cop and upload the dependencies
+COPY package*.json ./
+RUN npm install
+
+# copy the application code
+COPY . .
+
+# run the app
+CMD ["npm", "start"]
