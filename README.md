@@ -59,17 +59,17 @@ Step 3: Submitting Queries
 
 While the application is running, you can submit your queries via the API or a command-line interface (CLI).
 
-# Example query code
+Example query code
 from backend.main import ask_question
 
 response = ask_question("What were the turning points of World War II?")
 print(response)
 
-# In a development environment, you can create an API endpoint
-# to submit queries via an HTTP POST request.
-# This provides a more flexible interface.
-# For example, with a RESTful API endpoint:
-# POST /api/query {"question": "Your question here"}
+ In a development environment, you can create an API endpoint
+ to submit queries via an HTTP POST request.
+ This provides a more flexible interface.
+ For example, with a RESTful API endpoint:
+ POST /api/query {"question": "Your question here"}
 
 Contributing
 If you would like to contribute to the project, please feel free to open a pull request or report an issue. All contributions are welcome!
